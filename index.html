@@ -1,3 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cyberbullying Detector AI</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      width: 400px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 15px;
+      padding: 10px;
+      background: #334155;
+    }
+
+    .bullying { color: #ef4444; }
+    .normal { color: #22c55e; }
+    .joke { color: #facc15; }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🧠 Cyberbullying Detector AI</h1>
+
+  <textarea id="inputText"></textarea>
+
+  <button onclick="checkText()">Detect</button>
+
+  <div id="result" class="result">Result will appear here...</div>
+</div>
+
 <script>
 async function checkText() {
   const text = document.getElementById("inputText").value;
@@ -8,37 +74,33 @@ async function checkText() {
   try {
     const res = await fetch("https://pat00-cyberbullying-detector.hf.space/predict", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text })
     });
 
     const data = await res.json();
-    console.log("API RESPONSE:", data);
+    console.log(data);
 
-    // fleksibel parsing (biar gak error kalau beda key)
     const label = data.label || data.prediction || "unknown";
     const confidence = data.confidence || data.score || 0;
 
-    let colorClass = "normal";
-
-    if (label.toLowerCase().includes("cyber")) {
-      colorClass = "bullying";
-    } else if (label.toLowerCase().includes("joke")) {
-      colorClass = "joke";
-    }
+    let color = "normal";
+    if (label.includes("cyber")) color = "bullying";
+    if (label.includes("joke")) color = "joke";
 
     resultDiv.innerHTML = `
-      <div class="${colorClass}">
+      <div class="${color}">
         <b>Result:</b> ${label} <br/>
         <b>Confidence:</b> ${confidence}
       </div>
     `;
 
   } catch (err) {
+    resultDiv.innerHTML = "Error ❌";
     console.error(err);
-    resultDiv.innerHTML = "Error connecting to API ❌";
   }
 }
 </script>
+
+</body>
+</html>
